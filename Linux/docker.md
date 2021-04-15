@@ -151,6 +151,10 @@ docker run -it --rm tomcat:9.0
 #正常启动运行
 docker run -d --name tomcat01 -p 3355:8080 tomcat
 #测试访问
+#进入容器
+docker exec -it tomcat01 /bin/bash
+#复制webapps.dist下文件到webapps文件夹
+cp -r webapps.dist/* webapps
 
 ```
 
