@@ -1,0 +1,253 @@
+
+
+## 常用五大数据类型简介
+
+### Redis的五大数据类型
+
+- String（字符串）
+  - string是redis最基本的类型，你可以理解成与Memcached一模一样的类型，一个key对应一个value。
+  - string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象 。
+  - string类型是Redis最基本的数据类型，一个redis中字符串value最多可以是512M
+- Hash（哈希，类似java里的Map）
+  - Redis hash 是一个键值对集合。
+  - Redis hash是一个string类型的field和value的映射表，hash特别适合用于存储对象。
+  - 类似Java里面的Map<String,Object>
+- List（列表）
+  - Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素导列表的头部（左边）或者尾部（右边）。
+  - 它的底层实际是个链表
+- Set（集合）
+  - Redis的Set是string类型的无序集合。它是通过HashTable实现实现的
+- Zset(sorted set：有序集合)
+  - Redis zset 和 set 一样也是string类型元素的集合，且不允许重复的成员。
+  - 不同的是每个元素都会关联一个double类型的分数。
+  - redis正是通过分数来为集合中的成员进行从小到大的排序。zset的成员是唯一的，但分数(score)却可以重复。
+
+## Key关键字
+
+### 常用的
+
+| 命令                                      | 描述                                                         |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| DEL key                                   | 该命令用于在 key 存在时删除 key。                            |
+| DUMP key                                  | 序列化给定 key ，并返回被序列化的值。                        |
+| EXISTS key                                | 检查给定 key 是否存在。                                      |
+| EXPIRE key seconds                        | 为给定 key 设置过期时间，以秒计。                            |
+| EXPIREAT key timestamp                    | EXPIREAT 的作用和 EXPIRE 类似，都用于为 key 设置过期时间。 不同在于 EXPIREAT 命令接受的时间参数是 UNIX 时间戳(unix timestamp)。 |
+| PEXPIRE key milliseconds                  | 设置 key 的过期时间以毫秒计。                                |
+| PEXPIREAT key milliseconds-timestamp      | 设置 key 过期时间的时间戳(unix timestamp) 以毫秒计           |
+| KEYS pattern                              | 查找所有符合给定模式( pattern)的 key 。                      |
+| MOVE key db                               | 将当前数据库的 key 移动到给定的数据库 db 当中。              |
+| PERSIST key                               | 移除 key 的过期时间，key 将持久保持。                        |
+| PTTL key                                  | 以毫秒为单位返回 key 的剩余的过期时间。                      |
+| TTL key                                   | 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。 |
+| RANDOMKEY                                 | 从当前数据库中随机返回一个 key 。                            |
+| RENAME key newkey                         | 修改 key 的名称                                              |
+| RENAMENX key newkey                       | 仅当 newkey 不存在时，将 key 改名为 newkey 。                |
+| SCAN cursor [MATCH pattern] [COUNT count] | 迭代数据库中的数据库键。                                     |
+| TYPE key                                  | 返回 key 所储存的值的类型。                                  |
+
+#### 案例
+
+- keys *
+- exists key的名字，判断某个key是否存在(1为true，0为false)
+- move key db —>当前库就没有了，被移除了
+- expire key 秒钟：为给定的key设置过期时间
+- ttl key 查看还有多少秒过期，-1表示永不过期，-2表示已过期
+- type key 查看你的key是什么类型
+
+## String
+
+单值单value
+
+### 常用
+
+| 命令                           | 描述                                                         |
+| ------------------------------ | ------------------------------------------------------------ |
+| SET key value                  | 设置指定 key 的值                                            |
+| GET key                        | 获取指定 key 的值。                                          |
+| GETRANGE key start end         | 返回 key 中字符串值的子字符                                  |
+| GETSET key value               | 将给定 key 的值设为 value ，并返回 key 的旧值(old value)。   |
+| GETBIT key offset              | 对 key 所储存的字符串值，获取指定偏移量上的位(bit)。         |
+| MGET key1 [key2…]              | 获取所有(一个或多个)给定 key 的值。                          |
+| SETBIT key offset value        | 对 key 所储存的字符串值，设置或清除指定偏移量上的位(bit)。   |
+| SETEX key seconds value        | 将值 value 关联到 key ，并将 key 的过期时间设为 seconds (以秒为单位)。 |
+| SETNX key value                | 只有在 key 不存在时设置 key 的值。                           |
+| SETRANGE key offset value      | 用 value 参数覆写给定 key 所储存的字符串值，从偏移量 offset 开始。 |
+| STRLEN key                     | 返回 key 所储存的字符串值的长度。                            |
+| MSET key value [key value …]   | 同时设置一个或多个 key-value 对。                            |
+| MSETNX key value [key value …] | 同时设置一个或多个 key-value 对，当且仅当所有给定 key 都不存在。 |
+| PSETEX key milliseconds value  | 这个命令和 SETEX 命令相似，但它以毫秒为单位设置 key 的生存时间，而不是像 SETEX 命令那样，以秒为单位。 |
+| INCR key                       | 将 key 中储存的数字值增一。                                  |
+| INCRBY key increment           | 将 key 所储存的值加上给定的增量值（increment） 。            |
+| INCRBYFLOAT key increment      | 将 key 所储存的值加上给定的浮点增量值（increment） 。        |
+| DECR key                       | 将 key 中储存的数字值减一。                                  |
+| DECRBY key decrement           | key 所储存的值减去给定的减量值（decrement） 。               |
+| APPEND key value               | 如果 key 已经存在并且是一个字符串， APPEND 命令将指定的 value 追加到该 key 原来值（value）的末尾。 |
+
+### 案例
+
+- set/get/del/append/strlen  赋值/得到/删除/在最后拼接/得到长度
+- Incr/decr/incrby/decrby,一定要是数字才能进行加减
+- getrange/setrange 范围赋值，范围取值
+- setex(set with expire)键秒值/setnx(set if not exist)
+- mset/mget/msetnx
+- getset(先get再set)
+
+## List
+
+单值多value
+
+### 常用
+
+| 命令                                  | 描述                                                         |
+| ------------------------------------- | ------------------------------------------------------------ |
+| BLPOP key1 [key2 ] timeout            | 移出并获取列表的第一个元素， 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。 |
+| BRPOP key1 [key2 ] timeout            | 移出并获取列表的最后一个元素， 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。 |
+| BRPOPLPUSH source destination timeout | 从列表中弹出一个值，将弹出的元素插入到另外一个列表中并返回它； 如果列表没有元素会阻塞列表直到等待超时或发现可弹出元素为止。 |
+| LINDEX key index                      | 通过索引获取列表中的元素                                     |
+| LINSERT key BEFORE/AFTER pivot value  | 在列表的元素前或者后插入元素                                 |
+| LLEN key                              | 获取列表长度                                                 |
+| LPOP key                              | 移出并获取列表的第一个元素                                   |
+| LPUSH key value1 [value2]             | 将一个或多个值插入到列表头部                                 |
+| LPUSHX key value                      | 将一个值插入到已存在的列表头部                               |
+| LRANGE key start stop                 | 获取列表指定范围内的元素                                     |
+| LREM key count value                  | 移除列表元素                                                 |
+| LSET key index value                  | 通过索引设置列表元素的值                                     |
+| LTRIM key start stop                  | 对一个列表进行修剪(trim)，就是说，让列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。 |
+| RPOP key                              | 移除列表的最后一个元素，返回值为移除的元素。                 |
+| RPOPLPUSH source destination          | 移除列表的最后一个元素，并将该元素添加到另一个列表并返回     |
+| RPUSH key value1 [value2]             | 在列表中添加一个或多个值                                     |
+| RPUSHX key value                      | 为已存在的列表添加值                                         |
+
+### 案例
+
+- lpush/rpush/lrange  lpush后进先出，rpush先进先出
+- lpop/rpop
+- lindex，按照索引下标获得元素(从上到下)
+- llen
+- lrem key 删N个value
+- ltrim key 开始index 结束index，截取指定范围的值后再赋值给key
+- rpoplpush 源列表 目的列表
+- lset key index value
+- linsert key before/after 值1 值2
+
+性能总结：
+
+- 它是一个字符串链表，left、right都可以插入添加；
+- 如果键不存在，创建新的链表；
+- 如果键已存在，新增内容；
+- 如果值全移除，对应的键也就消失了。
+- 链表的操作无论是头和尾效率都极高，但假如是对中间元素进行操作，效率就很惨淡了。
+
+## Set
+
+单值多value
+
+### 常用
+
+| 命令                                           | 描述                                                |
+| ---------------------------------------------- | --------------------------------------------------- |
+| SADD key member1 [member2]                     | 向集合添加一个或多个成员                            |
+| SCARD key                                      | 获取集合的成员数                                    |
+| SDIFF key1 [key2]                              | 返回给定所有集合的差集                              |
+| SDIFFSTORE destination key1 [key2]             | 返回给定所有集合的差集并存储在 destination 中       |
+| SINTER key1 [key2]                             | 返回给定所有集合的交集                              |
+| SINTERSTORE destination key1 [key2]            | 返回给定所有集合的交集并存储在 destination 中       |
+| SISMEMBER key member                           | 判断 member 元素是否是集合 key 的成员               |
+| SMEMBERS key                                   | 返回集合中的所有成员                                |
+| SMOVE source destination member                | 将 member 元素从 source 集合移动到 destination 集合 |
+| SPOP key                                       | 移除并返回集合中的一个随机元素                      |
+| SRANDMEMBER key [count]                        | 返回集合中一个或多个随机数                          |
+| SREM key member1 [member2]                     | 移除集合中一个或多个成员                            |
+| SUNION key1 [key2]                             | 返回所有给定集合的并集                              |
+| SUNIONSTORE destination key1 [key2]            | 所有给定集合的并集存储在 destination 集合中         |
+| SSCAN key cursor [MATCH pattern] [COUNT count] | 迭代集合中的元素                                    |
+
+### 案例
+
+- sadd/smembers/sismember
+- scard，获取集合里面的元素个数
+- srem key value 删除集合中元素
+- srandmember key 某个整数(随机出几个数)
+- spop key 随机出栈
+- smove key1 key2 在key1里某个值 作用是将key1里的某个值赋给key2
+- 数学集合类
+  - 差集：sdiff
+  - 交集：sinter
+  - 并集：sunion
+
+## Hash
+
+KV模式不变，但V是一个键值对
+
+### 常用
+
+| 命令                                           | 描述                                                     |
+| ---------------------------------------------- | -------------------------------------------------------- |
+| HDEL key field1 [field2]                       | 删除一个或多个哈希表字段                                 |
+| HEXISTS key field                              | 查看哈希表 key 中，指定的字段是否存在。                  |
+| HGET key field                                 | 获取存储在哈希表中指定字段的值。                         |
+| HGETALL key                                    | 获取在哈希表中指定 key 的所有字段和值                    |
+| HINCRBY key field increment                    | 为哈希表 key 中的指定字段的整数值加上增量 increment 。   |
+| HINCRBYFLOAT key field increment               | 为哈希表 key 中的指定字段的浮点数值加上增量 increment 。 |
+| HKEYS key                                      | 获取所有哈希表中的字段                                   |
+| HLEN key                                       | 获取哈希表中字段的数量                                   |
+| HMGET key field1 [field2]                      | 获取所有给定字段的值                                     |
+| HMSET key field1 value1 [field2 value2 ]       | 同时将多个 field-value (域-值)对设置到哈希表 key 中。    |
+| HSET key field value                           | 将哈希表 key 中的字段 field 的值设为 value 。            |
+| HSETNX key field value                         | 只有在字段 field 不存在时，设置哈希表字段的值。          |
+| HVALS key                                      | 获取哈希表中所有值。                                     |
+| HSCAN key cursor [MATCH pattern] [COUNT count] | 迭代哈希表中的键值对。                                   |
+
+### 案例
+
+- hset/hget/hmset/hmget/hgetall/hdel
+- hlen
+- hexists key 在key里面的某个值的key
+- hkeys/hvals
+- hincrby/hincrbyfloat
+- hsetnx
+
+## ZSet
+
+在set基础上，加一个score值。 之前set是k1 v1 v2 v3， 现在zset是k1 score1 v1 score2 v2
+
+### 常用
+
+| 命令                                           | 描述                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| ZADD key score1 member1 [score2 member2]       | 向有序集合添加一个或多个成员，或者更新已存在成员的分数       |
+| ZCARD key                                      | 获取有序集合的成员数                                         |
+| ZCOUNT key min max                             | 计算在有序集合中指定区间分数的成员数                         |
+| ZINCRBY key increment member                   | 有序集合中对指定成员的分数加上增量 increment                 |
+| ZINTERSTORE destination numkeys key [key …]    | 计算给定的一个或多个有序集的交集并将结果集存储在新的有序集合 key 中 |
+| ZLEXCOUNT key min max                          | 在有序集合中计算指定字典区间内成员数量                       |
+| ZRANGE key start stop [WITHSCORES]             | 通过索引区间返回有序集合指定区间内的成员                     |
+| ZRANGEBYLEX key min max [LIMIT offset count]   | 通过字典区间返回有序集合的成员                               |
+| ZRANGEBYSCORE key min max [WITHSCORES] [LIMIT] | 通过分数返回有序集合指定区间内的成员                         |
+| ZRANK key member                               | 返回有序集合中指定成员的索引                                 |
+| ZREM key member [member …]                     | 移除有序集合中的一个或多个成员                               |
+| ZREMRANGEBYLEX key min max                     | 移除有序集合中给定的字典区间的所有成员                       |
+| ZREMRANGEBYRANK key start stop                 | 移除有序集合中给定的排名区间的所有成员                       |
+| ZREMRANGEBYSCORE key min max                   | 移除有序集合中给定的分数区间的所有成员                       |
+| ZREVRANGE key start stop [WITHSCORES]          | 返回有序集中指定区间内的成员，通过索引，分数从高到低         |
+| ZREVRANGEBYSCORE key max min [WITHSCORES]      | 返回有序集中指定分数区间内的成员，分数从高到低排序           |
+| ZREVRANK key member                            | 返回有序集合中指定成员的排名，有序集成员按分数值递减(从大到小)排序 |
+| ZSCORE key member                              | 返回有序集中，成员的分数值                                   |
+| ZUNIONSTORE destination numkeys key [key …]    | 计算给定的一个或多个有序集的并集，并存储在新的 key 中        |
+| ZSCAN key cursor [MATCH pattern] [COUNT count] | 迭代有序集合中的元素（包括元素成员和元素分值）               |
+
+### 案例
+
+- zadd/zrange
+  - Withscores
+- zrangebyscore key 开始score 结束score
+  - withscores
+  - ( 不包含
+  - Limit 作用是返回限制
+    - limit 开始下标步 多少步
+- zrem key 某score下对应的value值，作用是删除元素
+- zcard/zcount key score区间/zrank key values值，作用是获得下标值/zscore key 对应值,获得分数
+- zrevrank key values值，作用是逆序获得下标值
+- zrevrange
+- zrevrangebyscore key 结束score 开始score
