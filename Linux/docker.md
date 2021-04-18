@@ -194,6 +194,8 @@ docker run -d -p 8088:9000 \--restart=always -v /var/run/docker.sock:/var/run/do
 
 ### Docker镜像加载原理
 
+
+
 > UnionFS（联合文件系统）
 
 UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，他支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下（unite several directories into a single virtual filesystem）。Union文件系统是Docker镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。
@@ -202,5 +204,17 @@ UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层�
 
 > Docker镜像加载原理
 
+docker的镜像实际上由一层一层的文件系统组成，这种层级的文件系统UnionFS。
 
+下面来了解下Linux 操作系统由内核空间和用户空间组成，如下图所示：
+
+![dd5cf83799311a7b50f874205ff9de7a](http://weiguo-1303915920.cos.ap-nanjing.myqcloud.com/f7321fc7bbbfc7ab7e210eee71b9268b.png)
+
+bootfs（boot file system）主要包含bootloader和kernel，bootloader主要是引导加载kernel，Linux刚启动时会加载bootfs文件系统，在Docker镜像的最底层是bootfs。这一层与我们典型的Linux/Unix系统是一样的，包含boot加载器和内核。当boot加载完成之后整个内核就都在内存中了，此时内存的使用权已由bootfs转交给内核，此时系统也会卸载bootfs。
+
+rootfs（root file system），在bootfs之上。包含的就是典型的Linux系统中的/dev，/proc，/bin，/etc等标准目录和文件。rootfs就是各种不同的操作系统发行版，比如Ubuntu，Centos等等。
+
+![18343bbc10cd2568ebafe476337a5e5f](http://weiguo-1303915920.cos.ap-nanjing.myqcloud.com/b97a945a7304ba98162e9af4719397eb.png)
+
+对于一个精简的OS，rootfs可以很小，只需要包含最基本的命令，工具和程序库就可以了，因为底层直接用Host的kernel，自己只需要提供rootfs就可以了。由此可见对于不同的linux发行版，bootfs基本是一致的，rootfs会有差别，因此不同的发行版可以共用bootfs。
 
