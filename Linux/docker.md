@@ -155,6 +155,49 @@ docker run -d --name tomcat01 -p 3355:8080 tomcat
 docker exec -it tomcat01 /bin/bash
 #复制webapps.dist下文件到webapps文件夹
 cp -r webapps.dist/* webapps
+#查看docker容器资源占用情况 
+docker stats
+```
+
+### 可视化
+
+> portainer
+
+**什么是portainer?**
+
+Docker图形化界面管理工具！提供一个后台面板供我们操作。
+
+```shell
+docker run -d -p 8088:9000 \--restart=always -v /var/run/docker.sock:/var/run/docker.sock --privileged=true portainer/portainer
 
 ```
 
+测试访问：1.116.84.179:8088
+
+![image-20210417154542249](https://weiguo-1303915920.cos.ap-nanjing.myqcloud.com/image-20210417154542249.png)
+
+![image-20210417155427190](https://weiguo-1303915920.cos.ap-nanjing.myqcloud.com/image-20210417155427190.png)
+
+## Docker镜像讲解
+
+### 镜像是什么
+
+镜像是一种轻量级，可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括运行时的代码、库、资源、环境变量和配置文件。
+
+所有的应用，打包成docker镜像，就能直接跑起来。
+
+如何得到镜像：
+
+- 从远处仓库下载
+- 从别的地方拷贝
+- 自己制作一个镜像DockerFile
+
+### Docker镜像加载原理
+
+> UnionFS（联合文件系统）
+
+UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层、轻量级并且高性能的文件系统，他支持对文件系统的修改作为一次提交来一层层的叠加，同时可以将不同目录挂载到同一个虚拟文件系统下（unite several directories into a single virtual filesystem）。Union文件系统是Docker镜像的基础。镜像可以通过分层来进行继承，基于基础镜像（没有父镜像），可以制作各种具体的应用镜像。
+
+特性：一次同时加载多个文件系统，但从外面看起来，只能看到一个文件系统，联合加载会把各层文件叠加起来，这样最终的文件系统会包含所有底层的文件和目录。
+
+> Docker镜像加载原理
