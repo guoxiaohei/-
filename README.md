@@ -1,4 +1,3 @@
 # -随便写写
 
-macbook测试
-
+疑问点：ThreadLocal
